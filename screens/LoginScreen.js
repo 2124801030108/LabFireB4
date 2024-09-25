@@ -7,7 +7,7 @@ import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view
 import { View, TextInput, Logo, Button, FormErrorMessage } from "../components";
 import { Images, Colors, auth } from "../config";
 import { useTogglePasswordVisibility } from "../hooks";
-import { loginValidationSchema } from "../utils";
+import { loginValidationSchema } from "../utils"; // Ensure this includes phone number validation
 
 export const LoginScreen = ({ navigation }) => {
   const [errorState, setErrorState] = useState("");
@@ -15,16 +15,23 @@ export const LoginScreen = ({ navigation }) => {
     useTogglePasswordVisibility();
 
   const handleLogin = (values) => {
-    const { email, password } = values;
-    signInWithEmailAndPassword(auth, email, password).catch((error) =>
-      setErrorState(error.message)
-    );
+    const { email, password, phoneNumber } = values;
+
+    // Adjust the login method based on how you handle phone login
+    if (phoneNumber) {
+      // Handle phone number authentication
+      // e.g., using Firebase's signInWithPhoneNumber method
+    } else {
+      signInWithEmailAndPassword(auth, email, password).catch((error) =>
+        setErrorState(error.message)
+      );
+    }
   };
+
   return (
     <>
       <View isSafe style={styles.container}>
         <KeyboardAwareScrollView enableOnAndroid={true}>
-          {/* LogoContainer: consist app logo and screen title */}
           <View style={styles.logoContainer}>
             <Logo uri={Images.logo} />
             <Text style={styles.screenTitle}>Welcome back!</Text>
@@ -33,6 +40,7 @@ export const LoginScreen = ({ navigation }) => {
             initialValues={{
               email: "",
               password: "",
+              phoneNumber: "", // New phone number field
             }}
             validationSchema={loginValidationSchema}
             onSubmit={(values) => handleLogin(values)}
@@ -46,7 +54,6 @@ export const LoginScreen = ({ navigation }) => {
               handleBlur,
             }) => (
               <>
-                {/* Input fields */}
                 <TextInput
                   name="email"
                   leftIconName="email"
@@ -63,6 +70,21 @@ export const LoginScreen = ({ navigation }) => {
                   error={errors.email}
                   visible={touched.email}
                 />
+
+                <TextInput
+                  name="phoneNumber"
+                  leftIconName="phone"
+                  placeholder="Enter phone number"
+                  keyboardType="phone-pad"
+                  value={values.phoneNumber}
+                  onChangeText={handleChange("phoneNumber")}
+                  onBlur={handleBlur("phoneNumber")}
+                />
+                <FormErrorMessage
+                  error={errors.phoneNumber}
+                  visible={touched.phoneNumber}
+                />
+
                 <TextInput
                   name="password"
                   leftIconName="key-variant"
@@ -81,18 +103,18 @@ export const LoginScreen = ({ navigation }) => {
                   error={errors.password}
                   visible={touched.password}
                 />
-                {/* Display Screen Error Messages */}
+
                 {errorState !== "" ? (
                   <FormErrorMessage error={errorState} visible={true} />
                 ) : null}
-                {/* Login button */}
+
                 <Button style={styles.button} onPress={handleSubmit}>
                   <Text style={styles.buttonText}>Login</Text>
                 </Button>
               </>
             )}
           </Formik>
-          {/* Button to navigate to SignupScreen to create a new account */}
+
           <Button
             style={styles.borderlessButtonContainer}
             borderless
@@ -108,7 +130,6 @@ export const LoginScreen = ({ navigation }) => {
         </KeyboardAwareScrollView>
       </View>
 
-      {/* App info footer */}
       <View style={styles.footer}>
         <Text style={styles.footerText}>Expo Firebase Starter App</Text>
       </View>
